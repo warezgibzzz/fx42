@@ -35,6 +35,11 @@ class ApiToken
      */
     private User $owner;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $refreshToken;
+
     public function __construct(User $owner)
     {
         $this->token = bin2hex(random_bytes(60));
@@ -84,6 +89,18 @@ class ApiToken
     public function setOwner(User $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(string $refreshToken): self
+    {
+        $this->refreshToken = $refreshToken;
 
         return $this;
     }

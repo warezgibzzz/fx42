@@ -1,0 +1,4 @@
+{
+    "intelephense.environment.documentRoot": "public/index.php",
+    "php.executablePath": "/usr/bin/php"
+}

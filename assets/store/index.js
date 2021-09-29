@@ -1,15 +1,23 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
+const store = createStore({
+  state() {
+    return {
+      user: JSON.parse(window.localStorage.getItem('USER')) || null,
+    }
+  },
+  mutations: {
+    [SET_USER] (state, user) {
+      state.user = user;
+    }
+  },
+  getters: {},
+  actions: {
+    setUser({commit}, user) {
+      commit(SET_USER, user)
+    }
+  },
   modules: {}
 });
-
-Vue.store = store;
 
 export default store;

@@ -3,7 +3,9 @@
 namespace App\Security;
 
 use App\Entity\User;
+use App\Entity\ApiToken;
 use App\Service\DiscordService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
@@ -14,6 +16,7 @@ use Psr\Http\Client\ClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -34,7 +37,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         protected RouterInterface $router,
         protected UserPasswordHasherInterface $passwordHasher,
         protected ClientRegistry $clientRegistry,
-        protected DiscordService $discordService
+        protected DiscordService $discordService,
+        protected RequestStack $requestStack
     ) {}
 
     public function supports(Request $request): ?bool
@@ -69,8 +73,6 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
 
                 $discordUser = $this->discordService->fetchUserInfo($accessToken);
 
-                dump($discordUser);
-
                 $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
                 if (!$user) {
@@ -81,10 +83,28 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     $user->setPassword($this->passwordHasher->hashPassword($user, sha1(random_bytes(30))));
                 }
 
+                $apiToken = $this->entityManager->getRepository(ApiToken::class)->findOneBy(['token' => $accessToken->getToken(), 'owner' => $user]);
+                if (!$apiToken) {
+                    $apiToken = new ApiToken($user);
+                    $apiToken->setToken($accessToken->getToken());
+                    $apiToken->setRefreshToken($accessToken->getRefreshToken());
+                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($accessToken->getExpires()));
+                }
 
+                if ($accessToken->hasExpired()) {
+                    $accessToken = $client->refreshAccessToken($accessToken->getRefreshToken());
+                    $apiToken->setToken($accessToken->getToken());
+                    $apiToken->setRefreshToken($accessToken->getRefreshToken());
+                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($accessToken->getExpires()));
+                }
 
+                
+
+                $this->entityManager->persist($apiToken);
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
+
+                $this->requestStack->getSession()->set(DiscordService::DISCORD_PROVIDER, $accessToken);
 
                 return $user;
             })
@@ -93,9 +113,9 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
-        $targetUrl = $this->router->generate('index');
 
-        return new RedirectResponse($targetUrl);
+        dd($this->requestStack->getSession());
+        return new RedirectResponse($this->router->generate('index'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
