@@ -6,8 +6,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v1
-    - name: Run Discord Webhook
-      uses: Mist3r-Robot/classic-discord-webhook@main
+    - name: Discord Commits
+      uses: Sniddl/discord-commits@v1.3
       with:
-        id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-        token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        message: "Successful commit to **{{ github.context.payload.repository.owner.name }}/{{ github.context.payload.repository.name}}**.\nDiff: {{ github.context.payload.compare }}"
+        embed: '{ "title": "{{ commit.title }}", "description": "{{ commit.description }}", "url": "{{ commit.url }}", "author": { "name": "{{ commit.author.name }} ({{ commit.author.username }})", "icon_url": "https://avatars.io/gravatar/{{ commit.author.email }}"} }'
+        last-commit-only: false
