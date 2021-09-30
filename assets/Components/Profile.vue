@@ -1,10 +1,10 @@
 <template>
-<h1>Hello FX42</h1>
+<h1>Hello FX42 profile</h1>
 </template>
 
 <script>
 export default {
-    name: "Index"
+    name: "Profile"
 }
 </script>
 

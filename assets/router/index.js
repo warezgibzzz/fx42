@@ -1,5 +1,6 @@
-import {createRouter, createWebHistory} from "vue-router";
+import {createRouter, createWebHashHistory} from "vue-router";
 import Index from "../Components/Index.vue"
+import Profile from "../Components/Profile.vue"
 
 const routes = [
   {
@@ -10,10 +11,18 @@ const routes = [
       title: "Главная"
     }
   },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: Profile,
+    meta: {
+      title: "Профиль"
+    }
+  },
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 });
 

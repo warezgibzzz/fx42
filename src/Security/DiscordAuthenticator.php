@@ -30,7 +30,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
-class DiscordAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
+class DiscordAuthenticator extends OAuth2Authenticator
 {
     public function __construct(
         protected EntityManagerInterface $entityManager,
@@ -122,11 +122,11 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         return new Response($message, Response::HTTP_FORBIDDEN);
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
-    {
-        return new RedirectResponse(
-            $this->router->generate('connect_discord_start'),
-            Response::HTTP_TEMPORARY_REDIRECT
-        );
-    }
+    // public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
+    // {
+    //     return new RedirectResponse(
+    //         $this->router->generate('connect_discord_start'),
+    //         Response::HTTP_TEMPORARY_REDIRECT
+    //     );
+    // }
 }

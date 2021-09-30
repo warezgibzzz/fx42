@@ -1,5 +1,4 @@
 import { createStore } from "vuex";
-import { SET_USER } from "./const.js";
 
 const store = createStore({
   strict: process.env.NODE_ENV !== 'production',
@@ -9,14 +8,33 @@ const store = createStore({
     }
   },
   mutations: {
-    [SET_USER] (state, user) {
+    setUser (state, user) {
       state.user = user;
     }
   },
-  getters: {},
+  getters: {
+    getUser (state) {
+      return state.user
+    },
+    loggedIn (state, getters) {
+      return getters.getUser !== null;
+    }
+  },
   actions: {
-    setUser({commit}, user) {
-      commit(SET_USER, user)
+    async getUser({commit}) {
+      const response = await fetch('/api/profile');
+    
+      if (response.status === 200) {
+        const user = response.json();
+
+        commit('setUser', user);
+        window.localStorage.setItem('USER', JSON.stringify(user));
+        
+        console.log(response);
+        
+        sreturn;
+      }
+      commit('setUser', null);
     }
   },
   modules: {}

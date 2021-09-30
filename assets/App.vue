@@ -36,12 +36,17 @@
             <a v-else class="btn btn-primary" href="/connect/discord"><fa-icon :icon="['fab', 'discord']"/>&nbsp;Войти при помощи Discord</a>
         </div>
     </div>
+    <div class="md:container md:mx-auto">
+        <router-view/>
+    </div>
 </template>
 
 <script>
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import {FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText} from "@fortawesome/vue-fontawesome";
+import { onMounted, ref } from '@vue/runtime-core';
+import { mapActions, useStore } from 'vuex';
 
 library.add(faDiscord)
 
@@ -49,6 +54,21 @@ export default {
     name: "App",
     components: {
         'fa-icon': FontAwesomeIcon
+    },
+    setup() {
+        const store = useStore()
+
+        const loggedIn = ref(store.getters.loggedIn)
+
+        onMounted(() => {
+            store.dispatch('getUser')
+
+            console.log(store)
+        })
+
+        return {
+            loggedIn
+        }
     }
 }
 </script>
