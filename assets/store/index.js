@@ -1,6 +1,8 @@
 import { createStore } from "vuex";
+import { SET_USER } from "./const.js";
 
 const store = createStore({
+  strict: process.env.NODE_ENV !== 'production',
   state() {
     return {
       user: JSON.parse(window.localStorage.getItem('USER')) || null,
