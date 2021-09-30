@@ -46,6 +46,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $email;
 
+    /**
+     * @ORM\OneToOne(targetEntity=GuildMember::class, mappedBy="discordUser", cascade={"persist", "remove"})
+     */
+    private $guildMember;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -150,6 +155,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getGuildMember(): ?GuildMember
+    {
+        return $this->guildMember;
+    }
+
+    public function setGuildMember(?GuildMember $guildMember): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($guildMember === null && $this->guildMember !== null) {
+            $this->guildMember->setDiscordUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($guildMember !== null && $guildMember->getDiscordUser() !== $this) {
+            $guildMember->setDiscordUser($this);
+        }
+
+        $this->guildMember = $guildMember;
 
         return $this;
     }
