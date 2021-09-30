@@ -38,7 +38,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         protected UserPasswordHasherInterface $passwordHasher,
         protected ClientRegistry $clientRegistry,
         protected DiscordService $discordService,
-        protected RequestStack $requestStack
+        protected RequestStack $requestStack,
+        protected ?AccessToken $accessToken
     ) {}
 
     public function supports(Request $request): ?bool
@@ -57,12 +58,12 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $client = $this->getDiscordClient();
-        $accessToken = $this->fetchAccessToken($client);
+        $this->accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+            new UserBadge($this->accessToken->getToken(), function () use ($client) {
                 /** @var DiscordResourceOwner $userFromToken */
-                $userFromToken = $client->fetchUserFromToken($accessToken);
+                $userFromToken = $client->fetchUserFromToken($this->accessToken);
 
                 $email = $userFromToken->getEmail();
 
@@ -71,7 +72,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     return $existingUser;
                 }
 
-                $discordUser = $this->discordService->fetchUserInfo($accessToken);
+                $discordUser = $this->discordService->fetchUserInfo($this->accessToken);
 
                 $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
@@ -83,28 +84,24 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     $user->setPassword($this->passwordHasher->hashPassword($user, sha1(random_bytes(30))));
                 }
 
-                $apiToken = $this->entityManager->getRepository(ApiToken::class)->findOneBy(['token' => $accessToken->getToken(), 'owner' => $user]);
+                $apiToken = $this->entityManager->getRepository(ApiToken::class)->findOneBy(['token' => $this->accessToken->getToken(), 'owner' => $user]);
                 if (!$apiToken) {
                     $apiToken = new ApiToken($user);
-                    $apiToken->setToken($accessToken->getToken());
-                    $apiToken->setRefreshToken($accessToken->getRefreshToken());
-                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($accessToken->getExpires()));
+                    $apiToken->setToken($this->accessToken->getToken());
+                    $apiToken->setRefreshToken($this->accessToken->getRefreshToken());
+                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($this->accessToken->getExpires()));
                 }
 
-                if ($accessToken->hasExpired()) {
-                    $accessToken = $client->refreshAccessToken($accessToken->getRefreshToken());
-                    $apiToken->setToken($accessToken->getToken());
-                    $apiToken->setRefreshToken($accessToken->getRefreshToken());
-                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($accessToken->getExpires()));
+                if ($this->accessToken->hasExpired()) {
+                    $this->accessToken = $client->refreshAccessToken($this->accessToken->getRefreshToken());
+                    $apiToken->setToken($this->accessToken->getToken());
+                    $apiToken->setRefreshToken($this->accessToken->getRefreshToken());
+                    $apiToken->setExpiresAt((new DateTime())->setTimestamp($this->accessToken->getExpires()));
                 }
-
-                
 
                 $this->entityManager->persist($apiToken);
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
-
-                $this->requestStack->getSession()->set(DiscordService::DISCORD_PROVIDER, $accessToken);
 
                 return $user;
             })
@@ -114,6 +111,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
 
+        $this->requestStack->getSession()->set(DiscordService::DISCORD_PROVIDER, $this->accessToken);
         dd($this->requestStack->getSession());
         return new RedirectResponse($this->router->generate('index'));
     }

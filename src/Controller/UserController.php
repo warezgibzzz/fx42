@@ -11,13 +11,16 @@ use Symfony\Component\Security\Core\Security;
 
 class UserController extends AbstractController
 {
-    #[Route('/profile', name: 'profile')]
+    #[Route('/api/profile', name: 'profile')]
     public function profile(RequestStack $requestStack): Response
     {
         $session = $requestStack->getSession();
         
 
-        return $this->json($session->get(DiscordService::DISCORD_PROVIDER));
+        return $this->json([
+            'discordToken' => $session->get(DiscordService::DISCORD_PROVIDER),
+            'user' => $this->getUser()
+        ]);
     }
 
 }
