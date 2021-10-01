@@ -1,6 +1,7 @@
 import {createRouter, createWebHashHistory} from "vue-router";
 import Index from "../Components/Index.vue"
 import Profile from "../Components/Profile.vue"
+import Members from "../Components/Members.vue"
 
 const routes = [
   {
@@ -17,6 +18,14 @@ const routes = [
     component: Profile,
     meta: {
       title: "Профиль"
+    }
+  },
+  {
+    path: "/members",
+    name: "Members",
+    component: Members,
+    meta: {
+      title: "Персонажи"
     }
   },
 ];

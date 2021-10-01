@@ -3,27 +3,13 @@
         <div class="flex-none px-2 mx-2">
             <router-link :to="{name: 'Index'}" class="text-lg font-bold">FX42 Industries</router-link>
         </div>
-        <div class="flex-1 px-2 mx-2">
+        <div class="flex-1 px-2 mx-2" v-if="loggedIn">
             <div class="items-stretch hidden lg:flex">
-                <a class="btn btn-ghost btn-sm rounded-btn">
-                    Home
-                </a>
-                <a class="btn btn-ghost btn-sm rounded-btn">
-                    Portfolio
-                </a>
-                <a class="btn btn-ghost btn-sm rounded-btn">
-                    About
-                </a>
-                <a class="btn btn-ghost btn-sm rounded-btn">
-                    Contact
-                </a>
+                <router-link :to="{name: 'Members'}" class="btn btn-ghost btn-sm rounded-btn">Персонажи</router-link>
             </div>
         </div>
         <div class="flex-none">
             <div v-if="loggedIn" class="avatar dropdown dropdown-end">
-                <div class="rounded-full w-10 h-10 m-1" tabindex="0">
-                    <img src="https://i.pravatar.cc/500?img=32" alt="User"/>
-                </div>
                 <ul class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
                     <li>
                         <router-link :to="{name:'Profile'}">Профиль</router-link>
@@ -45,7 +31,7 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import {FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText} from "@fortawesome/vue-fontawesome";
-import { onMounted, ref } from '@vue/runtime-core';
+import { onMounted, reactive, ref } from '@vue/runtime-core';
 import { mapActions, useStore } from 'vuex';
 
 library.add(faDiscord)
@@ -58,8 +44,6 @@ export default {
     setup() {
         const store = useStore()
 
-        const loggedIn = ref(store.getters.loggedIn)
-
         onMounted(() => {
             store.dispatch('getUser')
 
@@ -67,7 +51,8 @@ export default {
         })
 
         return {
-            loggedIn
+            loggedIn: store.getters.loggedIn,
+            user: store.getters.getUser
         }
     }
 }

@@ -14,6 +14,7 @@ const store = createStore({
   },
   getters: {
     getUser (state) {
+      console.log(state.user)
       return state.user
     },
     loggedIn (state, getters) {
@@ -32,7 +33,7 @@ const store = createStore({
         
         console.log(response);
         
-        sreturn;
+        return;
       }
       commit('setUser', null);
     }

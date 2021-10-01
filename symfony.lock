@@ -100,6 +100,9 @@
     "guzzlehttp/psr7": {
         "version": "2.0.0"
     },
+    "intervention/image": {
+        "version": "2.6.1"
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "1.20",
         "recipe": {
@@ -111,6 +114,9 @@
         "files": [
             "config/packages/knpu_oauth2_client.yaml"
         ]
+    },
+    "kosinix/grafika": {
+        "version": "dev-master"
     },
     "laminas/laminas-code": {
         "version": "4.4.3"
@@ -338,6 +344,9 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/mime": {
+        "version": "v5.3.8"
+    },
     "symfony/monolog-bridge": {
         "version": "v5.3.7"
     },
@@ -365,6 +374,9 @@
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.23.1"
     },
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.23.0"
+    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.23.0"
     },
@@ -388,6 +400,9 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.3.4"
+    },
+    "symfony/psr-http-message-bridge": {
+        "version": "v2.1.1"
     },
     "symfony/routing": {
         "version": "5.3",
@@ -520,6 +535,9 @@
     },
     "team-reflex/discord-php": {
         "version": "v6.0.2"
+    },
+    "thiagoalessio/tesseract_ocr": {
+        "version": "2.12.0"
     },
     "trafficcophp/bytebuffer": {
         "version": "v0.3"

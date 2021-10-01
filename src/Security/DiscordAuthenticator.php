@@ -84,6 +84,10 @@ class DiscordAuthenticator extends OAuth2Authenticator
                     $user->setPassword($this->passwordHasher->hashPassword($user, sha1(random_bytes(30))));
                 }
 
+                if ($user->getAvatar() !== $discordUser->avatarHash) {
+                    $user->setAvatar($discordUser->avatarHash);
+                }
+
                 $apiToken = $this->entityManager->getRepository(ApiToken::class)->findOneBy(['token' => $this->accessToken->getToken(), 'owner' => $user]);
                 if (!$apiToken) {
                     $apiToken = new ApiToken($user);
