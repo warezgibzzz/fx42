@@ -1,7 +1,6 @@
 import { createStore } from "vuex";
 
 const store = createStore({
-  strict: process.env.NODE_ENV !== 'production',
   state() {
     return {
       user: JSON.parse(window.localStorage.getItem('USER')) || null,
@@ -18,7 +17,8 @@ const store = createStore({
       return state.user
     },
     loggedIn (state, getters) {
-      return getters.getUser !== null;
+      console.log(getters.getUser)
+      return (getters.getUser !== null);
     }
   },
   actions: {
@@ -26,16 +26,13 @@ const store = createStore({
       const response = await fetch('/api/profile');
     
       if (response.status === 200) {
-        const user = response.json();
+        const user = await response.json();
 
-        commit('setUser', user);
         window.localStorage.setItem('USER', JSON.stringify(user));
-        
-        console.log(response);
-        
-        return;
+        commit('setUser', user);
+      } else {
+        commit('setUser', null);
       }
-      commit('setUser', null);
     }
   },
   modules: {}
